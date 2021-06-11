@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 class ColorPalette {
-  static final ColorPalette primary = ColorPalette(<Color>[
+  static final ColorPalette primary = ColorPalette(<Color?>[
     Colors.blue[400],
     Colors.blue[200],
     Colors.red[400],
@@ -21,13 +21,13 @@ class ColorPalette {
     Colors.black,
   ]);
 
-  ColorPalette(List<Color> colors) : _colors = colors {
+  ColorPalette(List<Color?> colors) : _colors = colors {
     assert(colors.isNotEmpty);
   }
 
-  final List<Color> _colors;
+  final List<Color?> _colors;
 
-  Color operator [](int index) => _colors[index % length];
+  Color operator [](int index) => _colors[index % length]!;
 
   int get length => _colors.length;
 

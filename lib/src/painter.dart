@@ -9,7 +9,7 @@ class AnimatedCircularChartPainter extends CustomPainter {
   AnimatedCircularChartPainter(this.animation, this.labelPainter) : super(repaint: animation);
 
   final Animation<CircularChart> animation;
-  final TextPainter labelPainter;
+  final TextPainter? labelPainter;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -39,7 +39,7 @@ class CircularChartPainter extends CustomPainter {
 
 const double _kRadiansPerDegree = Math.pi / 180;
 
-void _paintLabel(Canvas canvas, Size size, TextPainter labelPainter) {
+void _paintLabel(Canvas canvas, Size size, TextPainter? labelPainter) {
   if (labelPainter != null) {
     labelPainter.paint(
       canvas,
@@ -59,16 +59,16 @@ void _paintChart(Canvas canvas, Size size, CircularChart chart) {
 
   for (final CircularChartStack stack in chart.stacks) {
     for (final segment in stack.segments) {
-      segmentPaint.color = segment.color;
-      segmentPaint.strokeWidth = stack.width;
+      segmentPaint.color = segment.color!;
+      segmentPaint.strokeWidth = stack.width!;
 
       canvas.drawArc(
         Rect.fromCircle(
           center: Offset(size.width / 2, size.height / 2),
-          radius: stack.radius,
+          radius: stack.radius!,
         ),
-        stack.startAngle * _kRadiansPerDegree,
-        segment.sweepAngle * _kRadiansPerDegree,
+        stack.startAngle! * _kRadiansPerDegree,
+        segment.sweepAngle! * _kRadiansPerDegree,
         chart.chartType == CircularChartType.Pie,
         segmentPaint,
       );
