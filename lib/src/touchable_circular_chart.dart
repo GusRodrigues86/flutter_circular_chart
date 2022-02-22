@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_circular_chart_two/src/circular_chart.dart';
+import 'package:flutter_circular_chart_two/src/consts.dart';
 import 'package:flutter_circular_chart_two/src/entry.dart';
-import 'package:flutter_circular_chart_two/src/painter.dart';
+import 'package:flutter_circular_chart_two/src/touchable_painter.dart';
+import 'package:touchable/touchable.dart';
 
-import 'consts.dart';
-
-class AnimatedCircularChart extends StatefulWidget {
-  AnimatedCircularChart({
+class TouchableCircularChart extends StatefulWidget {
+  TouchableCircularChart({
     Key key,
     @required this.size,
     @required this.initialChartData,
@@ -18,8 +18,11 @@ class AnimatedCircularChart extends StatefulWidget {
     this.holeLabel,
     this.labelStyle,
     this.edgeStyle = SegmentEdgeStyle.flat,
+    this.onSelectSegment,
   })  : assert(size != null),
         super(key: key);
+
+  final Function(String id) onSelectSegment;
 
   /// The size of the bounding box this chart will be constrained to.
   final Size size;
@@ -40,7 +43,7 @@ class AnimatedCircularChart extends StatefulWidget {
   /// Use [CircularChartType.Radial] for one or more arcs with a hole in the center.
   final CircularChartType chartType;
 
-  /// The duration of the chart animation when [AnimatedCircularChartState.updateData]
+  /// The duration of the chart animation when [TouchableCircularChartState.updateData]
   /// is called.
   final Duration duration;
 
@@ -89,30 +92,30 @@ class AnimatedCircularChart extends StatefulWidget {
 
   /// The state from the closest instance of this class that encloses the given context.
   ///
-  /// This method is typically used by [AnimatedCircularChart] item widgets that insert or
+  /// This method is typically used by [TouchableCircularChart] item widgets that insert or
   /// remove items in response to user input.
   ///
   /// ```dart
-  /// AnimatedCircularChartState animatedCircularChart = AnimatedCircularChart.of(context);
+  /// TouchableCircularChartState TouchableCircularChart = TouchableCircularChart.of(context);
   /// ```
-  static AnimatedCircularChartState of(BuildContext context, {bool nullOk: false}) {
+  static TouchableCircularChartState of(BuildContext context, {bool nullOk: false}) {
     assert(context != null);
     assert(nullOk != null);
 
-    final AnimatedCircularChartState result = context.findAncestorStateOfType<AnimatedCircularChartState>();
+    final TouchableCircularChartState result = context.findAncestorStateOfType<TouchableCircularChartState>();
 
     if (nullOk || result != null) return result;
 
-    throw FlutterError('AnimatedCircularChart.of() called with a context that does not contain a AnimatedCircularChart.\n'
-        'No AnimatedCircularChart ancestor could be found starting from the context that was passed to AnimatedCircularChart.of(). '
+    throw FlutterError('TouchableCircularChart.of() called with a context that does not contain a TouchableCircularChart.\n'
+        'No TouchableCircularChart ancestor could be found starting from the context that was passed to TouchableCircularChart.of(). '
         'This can happen when the context provided is from the same StatefulWidget that '
-        'built the AnimatedCircularChart.\n'
+        'built the TouchableCircularChart.\n'
         'The context used was:\n'
         '  $context');
   }
 
   @override
-  AnimatedCircularChartState createState() => AnimatedCircularChartState();
+  TouchableCircularChartState createState() => TouchableCircularChartState();
 }
 
 /// The state for a circular chart that animates when its data is updated.
@@ -120,16 +123,16 @@ class AnimatedCircularChart extends StatefulWidget {
 /// When the chart data changes with [updateData] an animation begins running.
 ///
 /// An app that needs to update its data in response to an event
-/// can refer to the [AnimatedCircularChart]'s state with a global key:
+/// can refer to the [TouchableCircularChart]'s state with a global key:
 ///
 /// ```dart
-/// GlobalKey<AnimatedCircularChartState> chartKey = GlobalKey<AnimatedCircularChartState>();
+/// GlobalKey<TouchableCircularChartState> chartKey = GlobalKey<TouchableCircularChartState>();
 /// ...
-/// AnimatedCircularChart(key: chartKey, ...);
+/// TouchableCircularChart(key: chartKey, ...);
 /// ...
 /// chartKey.currentState.updateData(newData);
 /// ```
-class AnimatedCircularChartState extends State<AnimatedCircularChart> with TickerProviderStateMixin {
+class TouchableCircularChartState extends State<TouchableCircularChart> with TickerProviderStateMixin {
   CircularChartTween _tween;
   AnimationController _animation;
   final Map<String, int> _stackRanks = <String, int>{};
@@ -164,7 +167,7 @@ class AnimatedCircularChartState extends State<AnimatedCircularChart> with Ticke
   }
 
   @override
-  void didUpdateWidget(AnimatedCircularChart oldWidget) {
+  void didUpdateWidget(TouchableCircularChart oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.holeLabel != widget.holeLabel || oldWidget.labelStyle != widget.labelStyle) {
       _updateLabelPainter();
@@ -231,11 +234,15 @@ class AnimatedCircularChartState extends State<AnimatedCircularChart> with Ticke
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      size: widget.size,
-      painter: AnimatedCircularChartPainter(
-        _tween.animate(_animation),
-        widget.holeLabel != null ? _labelPainter : null,
+    return CanvasTouchDetector(
+      builder: (context) => CustomPaint(
+        size: widget.size,
+        painter: TouchableCircularChartPainter(
+          _tween.animate(_animation),
+          widget.holeLabel != null ? _labelPainter : null,
+          context,
+          widget.onSelectSegment,
+        ),
       ),
     );
   }
