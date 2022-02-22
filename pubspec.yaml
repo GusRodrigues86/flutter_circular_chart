@@ -4,6 +4,7 @@ version: "0.1.2"
 homepage: https://github.com/GusRodrigues86/flutter_circular_chart
 
 dependencies:
+  touchable: ^0.2.1
   flutter:
     sdk: flutter
 

@@ -43,7 +43,12 @@ class CircularChartStack implements MergeTweenable<CircularChartStack> {
       double sweepAngle = (entries[i].value / valueSum * _kMaxAngle) + previousSweepAngle;
       previousSweepAngle = sweepAngle;
       int rank = entryRanks[entries[i].rankKey] ?? i;
-      return CircularChartSegment(rank, sweepAngle, entries[i].color);
+      return CircularChartSegment(
+        rank,
+        sweepAngle,
+        entries[i].color,
+        id: entries[i].id,
+      );
     });
 
     return CircularChartStack(
@@ -56,24 +61,23 @@ class CircularChartStack implements MergeTweenable<CircularChartStack> {
   }
 
   @override
-  CircularChartStack get empty =>
-      CircularChartStack(rank, radius, 0.0, startAngle, <CircularChartSegment>[]);
+  CircularChartStack get empty => CircularChartStack(rank, radius, 0.0, startAngle, <CircularChartSegment>[]);
 
   @override
   bool operator <(CircularChartStack other) => rank < other.rank;
 
   @override
-  Tween<CircularChartStack> tweenTo(CircularChartStack other) =>
-      CircularChartStackTween(this, other);
+  Tween<CircularChartStack> tweenTo(CircularChartStack other) => CircularChartStackTween(this, other);
 }
 
 class CircularChartStackTween extends Tween<CircularChartStack> {
-  CircularChartStackTween(CircularChartStack begin, CircularChartStack end)
-      : _circularSegmentsTween = MergeTween<CircularChartSegment>(begin.segments, end.segments),
+  CircularChartStackTween(
+    CircularChartStack begin,
+    CircularChartStack end,
+  )   : _circularSegmentsTween = MergeTween<CircularChartSegment>(begin.segments, end.segments),
         super(begin: begin, end: end) {
     assert(begin.rank == end.rank);
   }
-
   final MergeTween<CircularChartSegment> _circularSegmentsTween;
 
   @override
